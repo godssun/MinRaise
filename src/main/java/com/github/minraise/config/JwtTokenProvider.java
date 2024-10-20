@@ -1,7 +1,6 @@
 package com.github.minraise.config;
 
-import com.github.minraise.exceptions.InvalidJwtAuthenticationException;
-import io.jsonwebtoken.Claims;
+
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -16,7 +15,7 @@ public class JwtTokenProvider {
 
 	private static final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-	private final String secretKey = "mySecretKey";  // 실제로는 환경변수로 관리
+//	private final String secretKey = "mySecretKey";  // 실제로는 환경변수로 관리
 
 	public String createToken(String username) {
 		long now = System.currentTimeMillis();
@@ -40,3 +39,4 @@ public class JwtTokenProvider {
 		}
 	}
 }
+//
