@@ -7,12 +7,14 @@ import com.github.minraise.entity.User;
 import com.github.minraise.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service // 이 클래스는 Spring의 서비스 컴포넌트로 등록됩니다.
 @AllArgsConstructor // Lombok을 사용하여 모든 필드를 파라미터로 받는 생성자를 자동으로 생성합니다.
+@Slf4j
 public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository; // DB와 상호작용하는 레포지토리
@@ -26,6 +28,7 @@ public class UserServiceImpl implements UserService {
 		// DTO를 엔티티로 변환하는 정적 팩토리 메소드를 사용합니다.
 		User user = UserDTO.toEntity(userDto, passwordEncoder);
 		// 변환된 엔티티를 DB에 저장합니다.
+		log.info("회원 가입 성공: 사용자명 - {}", user.getUsername());
 		return userRepository.save(user);
 	}
 
@@ -37,9 +40,11 @@ public class UserServiceImpl implements UserService {
 		// 사용자가 입력한 비밀번호와 저장된 비밀번호를 비교합니다.
 		if (passwordEncoder.matches(loginRequestDTO.getPassword(), userDetails.getPassword())) {
 			// 비밀번호가 맞다면 JWT 토큰을 생성하여 반환합니다.
+			log.info("로그인 성공: 사용자명 - {}", userDetails.getUsername());
 			return jwtTokenProvider.createToken(userDetails.getUsername());
 		} else {
 			// 비밀번호가 틀리면 예외를 던집니다.
+			log.error("로그인 실패: 잘못된 자격 증명");
 			throw new RuntimeException("Invalid credentials");
 		}
 	}
