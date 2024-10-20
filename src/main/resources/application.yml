@@ -11,3 +11,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+        logging:
+          config: classpath:logback-spring.xml
+          level:
+            org:
+              hibernate:
+                SQL: DEBUG
