@@ -62,4 +62,14 @@ public class JwtTokenProvider {
 				.getBody()
 				.getSubject();
 	}
+
+	public String createRefreshToken(String username) {
+		long now = System.currentTimeMillis();
+		return Jwts.builder()
+				.setSubject(username)
+				.setIssuedAt(new Date(now))
+				.setExpiration(new Date(now + 604800000)) // 7일 유효
+				.signWith(SECRET_KEY, SignatureAlgorithm.HS256)
+				.compact();
+	}
 }
