@@ -1,0 +1,46 @@
+/* Welcome.css */
+.welcome-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f0f8ff;
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+}
+
+.welcome-title {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.welcome-buttons {
+    display: flex;
+    gap: 20px;
+}
+
+button {
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+button:first-of-type {
+    background-color: #4CAF50;
+    color: white;
+}
+
+button:last-of-type {
+    background-color: #008CBA;
+    color: white;
+}
