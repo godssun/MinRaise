@@ -9,7 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Builder
 public class UserDTO {
 	private String username;
-	private String password_hash;
+	private String password;
 	private String email;
 
 	// Static factory method to convert DTO to Entity
@@ -17,7 +17,7 @@ public class UserDTO {
 		User user = new User();
 		user.setUsername(userDto.getUsername());
 		user.setEmail(userDto.getEmail());
-		user.setPassword_hash(passwordEncoder.encode(userDto.getPassword_hash())); // Password encoding here
+		user.setPassword_hash(passwordEncoder.encode(userDto.getPassword())); // Password encoding here
 		return user;
 	}
 }
