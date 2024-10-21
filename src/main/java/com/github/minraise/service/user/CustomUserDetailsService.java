@@ -1,6 +1,6 @@
-package com.github.minraise.service;
+package com.github.minraise.service.user;
 
-import com.github.minraise.entity.User;
+import com.github.minraise.entity.user.User;
 import com.github.minraise.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

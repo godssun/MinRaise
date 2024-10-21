@@ -1,9 +1,9 @@
-package com.github.minraise.service;
+package com.github.minraise.service.user;
 
 import com.github.minraise.config.JwtTokenProvider;
 import com.github.minraise.dto.User.LoginRequestDTO;
 import com.github.minraise.dto.User.UserDTO;
-import com.github.minraise.entity.User;
+import com.github.minraise.entity.user.User;
 import com.github.minraise.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;

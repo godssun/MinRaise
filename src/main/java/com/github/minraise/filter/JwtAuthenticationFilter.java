@@ -1,7 +1,7 @@
 package com.github.minraise.filter;
 
 import com.github.minraise.config.JwtTokenProvider;
-import com.github.minraise.service.CustomUserDetailsService;
+import com.github.minraise.service.user.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

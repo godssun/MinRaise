@@ -1,4 +1,4 @@
-package com.github.minraise.entity;
+package com.github.minraise.entity.user;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

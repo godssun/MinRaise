@@ -3,7 +3,7 @@ package com.github.minraise.controller;
 import com.github.minraise.config.JwtTokenProvider;
 import com.github.minraise.dto.User.LoginRequestDTO;
 import com.github.minraise.dto.User.UserDTO;
-import com.github.minraise.service.UserService;
+import com.github.minraise.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

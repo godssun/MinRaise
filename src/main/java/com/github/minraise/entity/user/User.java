@@ -1,4 +1,4 @@
-package com.github.minraise.entity;
+package com.github.minraise.entity.user;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.*;
@@ -16,7 +16,7 @@ public class User {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int user_id;
+	private Integer user_id;
 
 	private String username;
 
