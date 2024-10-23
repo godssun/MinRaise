@@ -1,12 +1,13 @@
 package com.github.minraise.service.user;
 
-import com.github.minraise.dto.User.LoginRequestDTO;
-import com.github.minraise.dto.User.UserDTO;
-import com.github.minraise.entity.user.User;
+import com.github.minraise.dto.User.LoginRequest;
+import com.github.minraise.dto.User.LoginResponse;
+import com.github.minraise.dto.User.SignUpRequest;
+import com.github.minraise.dto.User.SignUpResponse;
 
 public interface UserService {
-	User registerUser(UserDTO userDto);
+	SignUpResponse registerUser(SignUpRequest signUpRequest);
 
 
-	String loginUser(LoginRequestDTO loginRequest);
+	LoginResponse loginUser(LoginRequest loginRequest);
 }

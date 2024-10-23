@@ -1,16 +1,21 @@
 package com.github.minraise.service.user;
 
 import com.github.minraise.config.JwtTokenProvider;
-import com.github.minraise.dto.User.LoginRequestDTO;
-import com.github.minraise.dto.User.UserDTO;
+import com.github.minraise.dto.User.LoginRequest;
+import com.github.minraise.dto.User.LoginResponse;
+import com.github.minraise.dto.User.SignUpRequest;
+import com.github.minraise.dto.User.SignUpResponse;
 import com.github.minraise.entity.user.User;
 import com.github.minraise.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+
 
 @Service // 이 클래스는 Spring의 서비스 컴포넌트로 등록됩니다.
 @AllArgsConstructor // Lombok을 사용하여 모든 필드를 파라미터로 받는 생성자를 자동으로 생성합니다.
@@ -24,28 +29,32 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional // 트랜잭션 처리를 보장하여 데이터 일관성을 유지합니다.
-	public User registerUser(UserDTO userDto) {
+	public SignUpResponse registerUser(SignUpRequest signUpRequest) {
 		// DTO를 엔티티로 변환하는 정적 팩토리 메소드를 사용합니다.
-		User user = UserDTO.toEntity(userDto, passwordEncoder);
+		User user = User.fromSignUpRequest(signUpRequest,passwordEncoder);
+		User savedUser = userRepository.save(user);
 		// 변환된 엔티티를 DB에 저장합니다.
 		log.info("회원 가입 성공: 사용자명 - {}", user.getUsername());
-		return userRepository.save(user);
+		return SignUpResponse.fromUser(savedUser);
 	}
 
-	@Override
-	public String loginUser(LoginRequestDTO loginRequestDTO) {
-		// 사용자명을 기준으로 사용자 정보를 로드합니다.
-		UserDetails userDetails = customUserDetailsService.loadUserByUsername(loginRequestDTO.getUsername());
-
-		// 사용자가 입력한 비밀번호와 저장된 비밀번호를 비교합니다.
-		if (passwordEncoder.matches(loginRequestDTO.getPassword(), userDetails.getPassword())) {
-			// 비밀번호가 맞다면 JWT 토큰을 생성하여 반환합니다.
-			log.info("로그인 성공: 사용자명 - {}", userDetails.getUsername());
-			return jwtTokenProvider.createToken(userDetails.getUsername());
-		} else {
-			// 비밀번호가 틀리면 예외를 던집니다.
-			log.error("로그인 실패: 잘못된 자격 증명");
+	public LoginResponse loginUser(LoginRequest loginRequest) {
+		UserDetails userDetails = customUserDetailsService.loadUserByUsername(loginRequest.getUsername());
+		if (!passwordEncoder.matches(loginRequest.getPassword(), userDetails.getPassword())) {
 			throw new RuntimeException("Invalid credentials");
 		}
+		String accessToken = jwtTokenProvider.createToken(userDetails.getUsername());
+		String refreshToken = jwtTokenProvider.createRefreshToken(userDetails.getUsername());
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Authorization", "Bearer " + accessToken);
+		headers.add("Refresh-Token", "Bearer " + refreshToken);
+
+		log.info("로그인 성공: 사용자명 - {}", userDetails.getUsername());
+		return LoginResponse.builder()
+				.message("로그인 완료")
+				.headers(headers) // 헤더 추가
+				.build();
+
 	}
 }

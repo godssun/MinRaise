@@ -1,10 +1,12 @@
 package com.github.minraise.entity.user;
 
+import com.github.minraise.dto.User.SignUpRequest;
 import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 
@@ -26,4 +28,12 @@ public class User {
 
 	@CreationTimestamp
 	private LocalDateTime createAt;
+
+	public static User fromSignUpRequest(SignUpRequest request, BCryptPasswordEncoder passwordEncoder) {
+		User user = new User();
+		user.username = request.getUsername();
+		user.email = request.getEmail();
+		user.password_hash = passwordEncoder.encode(request.getPassword());
+		return user;
+	}
 }
