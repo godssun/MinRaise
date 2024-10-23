@@ -15,6 +15,11 @@ public class GlobalExceptionHandler {
 		};
 		return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
 	}
-
+	@ExceptionHandler(MinimumRaiseViolationException.class)
+	public ResponseEntity<Object> handleMinimumRaiseViolationException(MinimumRaiseViolationException ex) {
+		// MinimumRaiseViolationException 처리
+		ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+	}
 	// 추가적인 예외 처리 로직
 }
