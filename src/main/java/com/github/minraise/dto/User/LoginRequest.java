@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class LoginRequestDTO {
+public class LoginRequest {
 	private String username;
 	private String password;
 }

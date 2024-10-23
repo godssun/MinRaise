@@ -1,6 +1,6 @@
 package com.github.minraise.repository;
 
-import com.github.minraise.entity.User;
+import com.github.minraise.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

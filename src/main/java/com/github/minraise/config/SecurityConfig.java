@@ -27,7 +27,7 @@ public class SecurityConfig {
 		http
 				.csrf(csrf -> csrf.disable())  // CSRF 보호를 비활성화합니다.
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/api/users/register", "/api/users/login").permitAll() // 회원가입 및 로그인 요청은 인증 없이 접근 허용
+						.requestMatchers("/api/users/register", "/api/users/login","/api/calculations/raise","/api/games/**","/api/bets/**","/api/players/**").permitAll() // 회원가입 및 로그인 요청은 인증 없이 접근 허용
 						.anyRequest().authenticated()) // 나머지 요청은 인증을 필요로 합니다.
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // 사용자 정의 JWT 인증 필터를 기본 인증 필터 전에 추가합니다.
 
