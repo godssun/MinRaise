@@ -4,6 +4,12 @@ spring:
     username: root
     password: Kskdij12!!
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 30000 # 연결 타임아웃 30초
+      idle-timeout: 600000 # 10분
+      max-lifetime: 1800000 # 30분
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -17,3 +23,10 @@ spring:
             org:
               hibernate:
                 SQL: DEBUG
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+    com.zaxxer.hikari: DEBUG # HikariCP 로그 디버깅

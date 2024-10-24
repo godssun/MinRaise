@@ -62,20 +62,23 @@ public class BetService {
 			// 두 번째 베팅에서는 previousRaiseAmount를 빅블라인드와 비교
 			previousRaiseAmount = game.getCurrentBetAmount().subtract(game.getBigBlind());
 			if (!validateSubsequentBet(raiseAmount, previousRaiseAmount)) {
-				throw new MinimumRaiseViolationException("미니멈 레이즈 위반.");
+				BigDecimal requiredBetAmount = previousRaiseAmount.add(game.getCurrentBetAmount()); // 추가로 얼마를 베팅해야 하는지 계산
+				throw new MinimumRaiseViolationException(
+						"미니멈 레이즈 위반. 최소한 " + requiredBetAmount + "을 베팅해야 합니다.", requiredBetAmount
+				);
 			}
 		} else {
 			// 세 번째 이후 베팅: raiseAmountt와 previousRaiseAmount의 차이를 계산하여 비교
 			BigDecimal lastBetAmount = game.getCurrentBetAmount();
 			previousRaiseAmount = lastBetAmount.subtract(getSecondLastBetAmount(game.getGameId()));
 			BigDecimal a = getSecondLastBetAmount(game.getGameId());
-			System.out.println(a);
-			System.out.println(previousRaiseAmount);
 			raiseAmount = betRequest.getBetAmount().subtract(lastBetAmount);
-			System.out.println(raiseAmount);
 
 			if (!validateSubsequentBet(raiseAmount, previousRaiseAmount)) {
-				throw new MinimumRaiseViolationException("미니멈 레이즈 위반.");
+				BigDecimal requiredBetAmount = previousRaiseAmount.add(lastBetAmount); // 추가로 얼마를 베팅해야 하는지 계산
+				throw new MinimumRaiseViolationException(
+						"미니멈 레이즈 위반. 최소한 " + requiredBetAmount + "을 베팅해야 합니다.", requiredBetAmount
+				);
 			}
 		}
 
@@ -122,5 +125,17 @@ public class BetService {
 
 		// 두 번째로 마지막 베팅의 금액 반환
 		return lastTwoBets.get(1).getBetAmount();
+	}
+	private BigDecimal getSecondLastRaiseAmount(Long gameId) {
+		// 해당 게임에서 마지막 두 개의 레이즈 양을 가져오는 쿼리
+		List<Bet> lastTwoBets = betRepository.findTop2ByGame_GameIdOrderByBetIndexDesc(gameId);
+
+		if (lastTwoBets.size() < 2) {
+			// 두 번째로 마지막 베팅이 없으면 0 반환
+			return BigDecimal.ZERO;
+		}
+
+		// 두 번째로 마지막 베팅의 레이즈 양 반환
+		return lastTwoBets.get(1).getRaiseAmount();
 	}
 }
