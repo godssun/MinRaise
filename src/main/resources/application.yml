@@ -29,4 +29,4 @@ logging:
     org:
       hibernate:
         SQL: DEBUG
-    com.zaxxer.hikari: DEBUG # HikariCP 로그 디버깅
+#    com.zaxxer.hikari: DEBUG # HikariCP 로그 디버깅
