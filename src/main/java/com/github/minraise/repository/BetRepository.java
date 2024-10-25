@@ -12,4 +12,8 @@ public interface BetRepository extends JpaRepository<Bet, Long> {
 
 	List<Bet> findTop2ByGame_GameIdOrderByBetIndexDesc(Long gameId);
 
+
+	void deleteByGame_GameId(Long gameId);
+
+
 }

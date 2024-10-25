@@ -7,4 +7,8 @@ import java.util.Optional;
 
 public interface PlayerRepository extends JpaRepository<Player, Long> {
 	Optional<Player> findByGame_GameIdAndPlayerIndex(Long gameId, Integer playerIndex);
+
+	void deleteByGame_GameId(Long gameId);
+
+
 }

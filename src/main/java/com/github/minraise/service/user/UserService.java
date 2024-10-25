@@ -76,10 +76,15 @@ public class UserService {
 		return UserResponse.fromUser(user);
 	}
 
-	public void deleteUser(Long userId) {
+	public UserDeleteResponse deleteUser(Long userId) {
 		User user = userRepository.findById(userId)
 				.orElseThrow(() -> new RuntimeException("User not found"));
 		userRepository.delete(user);
+
+		return UserDeleteResponse.builder()
+				.userId(userId)
+				.message("유저가 삭제되었습니다.")
+				.build();
 	}
 
 }
