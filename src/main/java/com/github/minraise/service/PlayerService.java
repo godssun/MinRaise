@@ -11,6 +11,9 @@ import com.github.minraise.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class PlayerService {
@@ -24,6 +27,11 @@ public class PlayerService {
 		Game game = gameRepository.findById(playerRequest.getGameId())
 				.orElseThrow(() -> new RuntimeException("Game not found"));
 
+		// 현재 게임에 속한 플레이어 수가 maxPlayer를 초과했는지 확인
+		List<Player> currentPlayers = playerRepository.findByGame_GameId(game.getGameId());
+		if (currentPlayers.size() >= game.getMaxPlayers()) {
+			throw new RuntimeException("플레이어 수가 최대 인원을 초과했습니다.");
+		}
 
 		GameCounter gameCounter = gameCounterRepository.findById(game.getGameId())
 				.orElseThrow(() -> new RuntimeException("Game counter not found"));
@@ -36,5 +44,18 @@ public class PlayerService {
 
 		// PlayerResponse로 변환하여 반환
 		return PlayerResponse.from(savedPlayer);
+	}
+
+	// 특정 게임의 모든 플레이어 정보를 반환
+	public List<PlayerResponse> getPlayersByGameId(Long gameId) {
+		// 게임이 존재하는지 확인
+		Game game = gameRepository.findById(gameId)
+				.orElseThrow(() -> new RuntimeException("Game not found"));
+
+		// 게임에 속한 모든 플레이어를 가져와서 PlayerResponse로 변환
+		List<Player> players = playerRepository.findByGame_GameId(gameId);
+		return players.stream()
+				.map(PlayerResponse::from)
+				.collect(Collectors.toList());
 	}
 }

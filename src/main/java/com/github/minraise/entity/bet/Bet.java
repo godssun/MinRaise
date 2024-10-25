@@ -1,5 +1,6 @@
 package com.github.minraise.entity.bet;
 
+import com.github.minraise.dto.bet.BetResponse;
 import com.github.minraise.entity.player.Player;
 import com.github.minraise.entity.game.Game;
 import jakarta.persistence.*;
@@ -36,4 +37,18 @@ public class Bet {
 	private boolean isValid;
 
 	private int betIndex;
+
+	// Bet 엔티티를 BetResponse로 변환하는 static factory method
+	public static BetResponse from(Bet bet) {
+		return BetResponse.builder()
+				.betId(bet.getBetId())
+				.gameId(bet.getGame().getGameId())
+				.playerId(bet.getPlayer().getPlayerId())
+				.betAmount(bet.getBetAmount())
+				.raiseAmount(bet.getRaiseAmount())
+				.betIndex(bet.getBetIndex())
+				.position(bet.getPosition())
+				.isValid(bet.isValid())
+				.build();
+	}
 }

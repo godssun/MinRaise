@@ -50,15 +50,11 @@ public class UserController {
 	}
 	// 유저 삭제 (Delete)
 	@DeleteMapping("/{userId}")
-	public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable Long userId) {
-		userService.deleteUser(userId);
+	public ResponseEntity<UserDeleteResponse> deleteUser(@PathVariable Long userId) {
 
-		// 응답 데이터 생성
-		Map<String, Object> response = new HashMap<>();
-		response.put("userId", userId);
-		response.put("message", "삭제완료");
+		UserDeleteResponse userDeleteResponse = userService.deleteUser(userId);
 
-		return ResponseEntity.ok(response);
+		return ResponseEntity.ok(userDeleteResponse);
 	}
 }
 

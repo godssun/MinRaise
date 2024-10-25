@@ -1,40 +1,46 @@
 import React, { useState } from 'react';
-import './GameCreate.css'; // 게임 생성 페이지 전용 스타일
-import PlayerAdd from './PlayerAdd';  // PlayerAdd를 불러옴
+import { useNavigate } from 'react-router-dom';
+import './GameCreate.css'; // 스타일 파일
 
 function GameCreate() {
     const [smallBlind, setSmallBlind] = useState('');
     const [bigBlind, setBigBlind] = useState('');
-    const [gameId, setGameId] = useState(null); // gameId 상태 추가
+    const navigate = useNavigate();
 
     const handleCreateGame = async (event) => {
         event.preventDefault();
 
-        // Max Players를 9로 고정
-        const maxPlayers = 9;
+        const gameData = {
+            smallBlind: parseFloat(smallBlind),
+            bigBlind: parseFloat(bigBlind),
+            maxPlayers: 9 // 9인 게임으로 고정
+        };
 
-        const response = await fetch('http://localhost:8080/api/games/create', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ smallBlind, bigBlind, maxPlayers })
-        });
+        try {
+            const response = await fetch('http://localhost:8080/api/games/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(gameData)
+            });
 
-        const data = await response.json();
-        if (response.ok) {
-            console.log('Game Creation Success:', data);
-            setGameId(data.gameId); // 서버에서 gameId를 받아와서 상태에 저장
-            alert('Game created successfully!');
-        } else {
-            console.log('Game Creation Error:', data);
-            alert('Game creation failed!');
+            if (response.ok) {
+                const game = await response.json();
+                alert('게임이 생성되었습니다!');
+                navigate(`/players/add/${game.gameId}`); // 플레이어 추가 페이지로 이동
+            } else {
+                alert('게임 생성에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('Error creating game:', error);
+            alert('게임 생성 중 오류가 발생했습니다.');
         }
     };
 
     return (
         <div className="game-create-container">
-            <h2>Create Game</h2>
+            <h2>게임 생성</h2>
             <form onSubmit={handleCreateGame}>
                 <label>
                     Small Blind:
@@ -54,13 +60,8 @@ function GameCreate() {
                         required
                     />
                 </label>
-                {/* 게임 9플레이어 기준 설명 추가 */}
-                <p className="game-info">게임은 9플레이어 기준입니다.</p>
-                <button type="submit">Create Game</button>
+                <button type="submit">게임 생성</button>
             </form>
-
-            {/* 게임이 생성되면 PlayerAdd 컴포넌트를 보여주고, gameId를 전달 */}
-            {gameId && <PlayerAdd gameId={gameId} />}
         </div>
     );
 }

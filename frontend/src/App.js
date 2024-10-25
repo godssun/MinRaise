@@ -4,6 +4,7 @@ import SignUp from './User/SignUp';
 import Login from './User/Login';
 import GameCreate from './Game/GameCreate';
 import PlayerAdd from './Game/PlayerAdd';
+import Betting from './Game/Betting';
 import './Welcome.css';
 
 function Welcome() {
@@ -27,6 +28,7 @@ function App() {
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/game/create" element={<GameCreate />} />
                 <Route path="/players/add/:gameId" element={<PlayerAdd />} />
+                <Route path="/betting/:gameId" element={<Betting />} /> {/* 이 경로 추가 */}
             </Routes>
         </Router>
     );

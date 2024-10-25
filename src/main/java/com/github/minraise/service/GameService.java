@@ -1,11 +1,15 @@
 package com.github.minraise.service;
 
+import com.github.minraise.dto.game.GameDeleteResponse;
 import com.github.minraise.dto.game.GameRequest;
 import com.github.minraise.dto.game.GameResponse;
 import com.github.minraise.entity.game.Game;
 import com.github.minraise.entity.game.GameCounter;
+import com.github.minraise.repository.BetRepository;
 import com.github.minraise.repository.GameCounterRepository;
 import com.github.minraise.repository.GameRepository;
+import com.github.minraise.repository.PlayerRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +18,8 @@ import org.springframework.stereotype.Service;
 public class GameService {
 	private final GameRepository gameRepository;
 	private final GameCounterRepository gameCounterRepository;
+	private final PlayerRepository playerRepository;
+	private final BetRepository betRepository;
 
 
 	public GameResponse createGame(GameRequest gameRequest) {
@@ -32,5 +38,21 @@ public class GameService {
 				.orElseThrow(() -> new RuntimeException("Game not found"));
 
 		return GameResponse.fromGame(game);
+	}
+
+	@Transactional
+	public GameDeleteResponse deleteGame(Long gameId) {
+
+		betRepository.deleteByGame_GameId(gameId);
+		playerRepository.deleteByGame_GameId(gameId);
+
+		// 게임 삭제
+		gameRepository.deleteById(gameId);
+
+		// 삭제된 게임 ID와 메시지를 담아 반환
+		return GameDeleteResponse.builder()
+				.gameId(gameId)
+				.message("게임이 삭제되었습니다.")
+				.build();
 	}
 }
