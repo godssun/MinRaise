@@ -27,6 +27,11 @@ public class PlayerService {
 		Game game = gameRepository.findById(playerRequest.getGameId())
 				.orElseThrow(() -> new RuntimeException("Game not found"));
 
+		// 현재 게임에 속한 플레이어 수가 maxPlayer를 초과했는지 확인
+		List<Player> currentPlayers = playerRepository.findByGame_GameId(game.getGameId());
+		if (currentPlayers.size() >= game.getMaxPlayers()) {
+			throw new RuntimeException("플레이어 수가 최대 인원을 초과했습니다.");
+		}
 
 		GameCounter gameCounter = gameCounterRepository.findById(game.getGameId())
 				.orElseThrow(() -> new RuntimeException("Game counter not found"));
