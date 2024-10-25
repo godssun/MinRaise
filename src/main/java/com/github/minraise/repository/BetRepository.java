@@ -8,12 +8,14 @@ import java.util.Optional;
 
 
 public interface BetRepository extends JpaRepository<Bet, Long> {
-	Optional<Bet> findByGame_GameIdAndBetIndex(Long gameId, int betIndex);
-
 	List<Bet> findTop2ByGame_GameIdOrderByBetIndexDesc(Long gameId);
 
 
 	void deleteByGame_GameId(Long gameId);
 
 
+	List<Bet> findByGame_GameId(Long gameId);
+
+	// 특정 게임의 특정 플레이어 인덱스의 모든 베팅 가져오기
+	List<Bet> findByGame_GameIdAndPlayer_PlayerIndex(Long gameId, int playerIndex);
 }

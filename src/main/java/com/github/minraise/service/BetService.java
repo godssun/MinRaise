@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -137,5 +138,23 @@ public class BetService {
 
 		// 두 번째로 마지막 베팅의 레이즈 양 반환
 		return lastTwoBets.get(1).getRaiseAmount();
+	}
+
+
+	// 특정 게임의 모든 베팅 내역 가져오기
+	public List<BetResponse> getBetsByGameId(Long gameId) {
+		List<Bet> bets = betRepository.findByGame_GameId(gameId);
+		return bets.stream()
+				.map(BetResponse::from)
+				.collect(Collectors.toList());
+	}
+
+	// 특정 게임에서 특정 플레이어 인덱스의 모든 베팅 가져오기
+	public List<BetResponse> getBetsByGamePlayerIndex(Long gameId, int playerIndex) {
+		List<Bet> bets = betRepository.findByGame_GameIdAndPlayer_PlayerIndex(gameId, playerIndex);
+		if (bets.isEmpty()) {
+			throw new RuntimeException("No bets found for this player index");
+		}
+		return bets.stream().map(BetResponse::from).collect(Collectors.toList());
 	}
 }
