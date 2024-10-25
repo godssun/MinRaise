@@ -16,7 +16,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script_stop: ture
+          script_stop: true
           script: |
             cd /home/ubuntu/MinRaise
             git pull origin main
