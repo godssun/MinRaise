@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import './SignUp.css';  // 회원가입 페이지 전용 스타일
+import { useNavigate } from 'react-router-dom';  // 리디렉션을 위한 useNavigate 추가
 
 function SignUp() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
+    const navigate = useNavigate();  // useNavigate 훅 사용
 
     const handleSignUp = async (event) => {
         event.preventDefault();
@@ -19,6 +21,7 @@ function SignUp() {
         if (response.ok) {
             console.log('SignUp Success:', data);
             alert('Registration successful!');
+            navigate('/login');  // 회원가입 성공 시 로그인 페이지로 리디렉션
         } else {
             console.log('SignUp Error:', data);
             alert('Registration failed!');

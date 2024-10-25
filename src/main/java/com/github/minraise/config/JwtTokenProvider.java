@@ -16,18 +16,27 @@ public class JwtTokenProvider {
 	// HS256 알고리즘을 사용하여 안전한 키를 생성합니다.
 	private static final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-	/**
-	 * 사용자 이름을 기반으로 JWT 토큰을 생성합니다.
-	 * @param username 사용자 이름
-	 * @return 생성된 JWT 토큰
-	 */
-	public String createToken(String username) {
+	public String createToken(Long userId) {
 		long now = System.currentTimeMillis();
 		return Jwts.builder()
-				.setSubject(username) // 토큰의 주제 설정
-				.setIssuedAt(new Date(now)) // 발행 시간 설정
-				.setExpiration(new Date(now + 86400000)) // 토큰의 유효 기간을 24시간으로 설정
-				.signWith(SECRET_KEY, SignatureAlgorithm.HS256) // 사용할 서명 알고리즘과 키 지정
+				.setSubject(userId.toString()) // user_id를 주제로 설정
+				.setIssuedAt(new Date(now))
+				.setExpiration(new Date(now + 86400000)) // 24시간 유효
+				.signWith(SECRET_KEY, SignatureAlgorithm.HS256)
+				.compact();
+	}
+	/**
+	 * 사용자 ID를 기반으로 Refresh 토큰을 생성합니다.
+	 * @param userId 사용자 ID
+	 * @return 생성된 Refresh 토큰
+	 */
+	public String createRefreshToken(Long userId) {
+		long now = System.currentTimeMillis();
+		return Jwts.builder()
+				.setSubject(String.valueOf(userId))
+				.setIssuedAt(new Date(now))
+				.setExpiration(new Date(now + 604800000)) // Refresh 토큰 유효 기간 7일로 설정
+				.signWith(SECRET_KEY, SignatureAlgorithm.HS256)
 				.compact();
 	}
 
@@ -50,7 +59,7 @@ public class JwtTokenProvider {
 	}
 
 	/**
-	 * JWT 토큰에서 사용자 이름을 추출합니다.
+	 * JWT 토큰에서 사용자 ID를 추출합니다.
 	 * @param token JWT 토큰
 	 * @return 토큰에서 추출한 사용자 이름
 	 */
@@ -63,13 +72,5 @@ public class JwtTokenProvider {
 				.getSubject();
 	}
 
-	public String createRefreshToken(String username) {
-		long now = System.currentTimeMillis();
-		return Jwts.builder()
-				.setSubject(username)
-				.setIssuedAt(new Date(now))
-				.setExpiration(new Date(now + 604800000)) // 7일 유효
-				.signWith(SECRET_KEY, SignatureAlgorithm.HS256)
-				.compact();
-	}
+
 }

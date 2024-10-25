@@ -29,7 +29,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		// Spring Security에서 제공하는 User 클래스를 사용해 UserDetails 객체를 만듭니다.
 		return org.springframework.security.core.userdetails.User.builder()
 				.username(user.getUsername()) // 유저명 설정
-				.password(user.getPassword_hash()) // 비밀번호 설정 (DB에서 암호화된 비밀번호)
+				.password(user.getPassword()) // 비밀번호 설정 (DB에서 암호화된 비밀번호)
 				.roles("USER") // 사용자의 권한 부여 (예시로 USER 역할)
 				.build();
 	}

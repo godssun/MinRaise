@@ -1,6 +1,7 @@
 package com.github.minraise.entity.user;
 
 import com.github.minraise.dto.User.SignUpRequest;
+import com.github.minraise.entity.game.Game;
 import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -9,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -22,9 +24,12 @@ public class User {
 
 	private String username;
 
-	private String password_hash;
+	private String password;
 
 	private String email;
+
+	@OneToMany(mappedBy = "user")
+	private List<Game> games;
 
 	@CreationTimestamp
 	private LocalDateTime createAt;
@@ -33,7 +38,7 @@ public class User {
 		User user = new User();
 		user.username = request.getUsername();
 		user.email = request.getEmail();
-		user.password_hash = passwordEncoder.encode(request.getPassword());
+		user.password = passwordEncoder.encode(request.getPassword());
 		return user;
 	}
 }

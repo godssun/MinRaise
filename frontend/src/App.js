@@ -1,16 +1,18 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import SignUp from './User/SignUp';
 import Login from './User/Login';
-import './Welcome.css'; // Welcome 스타일 추가
+import GameCreate from './Game/GameCreate';
+import PlayerAdd from './Game/PlayerAdd';
+import './Welcome.css';
 
 function Welcome() {
     return (
         <div className="welcome-container">
             <h1 className="welcome-title">Welcome to Our Application!</h1>
             <div className="welcome-buttons">
-                <Link to="/login"><button>Login</button></Link>
-                <Link to="/signup"><button>Sign Up</button></Link>
+                <a href="/login"><button>Login</button></a>
+                <a href="/signup"><button>Sign Up</button></a>
             </div>
         </div>
     );
@@ -23,6 +25,8 @@ function App() {
                 <Route path="/" element={<Welcome />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<SignUp />} />
+                <Route path="/game/create" element={<GameCreate />} />
+                <Route path="/players/add/:gameId" element={<PlayerAdd />} />
             </Routes>
         </Router>
     );

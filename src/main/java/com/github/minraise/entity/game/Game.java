@@ -2,6 +2,7 @@ package com.github.minraise.entity.game;
 
 import com.github.minraise.entity.bet.Bet;
 import com.github.minraise.entity.player.Player;
+import com.github.minraise.entity.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,6 +29,10 @@ public class Game {
 	private BigDecimal bigBlind;
 	private int maxPlayers;
 	private BigDecimal currentBetAmount;
+
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	private User user;
 
 	@OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
 	private List<Player> players = new ArrayList<>();
