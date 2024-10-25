@@ -1,9 +1,9 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/minimum_raise_db
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://database-1.cly0soekmaaf.ap-northeast-2.rds.amazonaws.com:3306/minimum_raise_db
     username: root
     password: Kskdij12!!
-    driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
       connection-timeout: 30000 # 연결 타임아웃 30초
@@ -12,7 +12,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
@@ -24,9 +24,3 @@ spring:
               hibernate:
                 SQL: DEBUG
 
-logging:
-  level:
-    org:
-      hibernate:
-        SQL: DEBUG
-#    com.zaxxer.hikari: DEBUG # HikariCP 로그 디버깅
