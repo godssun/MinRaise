@@ -35,8 +35,10 @@ public class Game {
 	private User user;
 
 	@OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
+	@Builder.Default
 	private List<Player> players = new ArrayList<>();
 
 	@OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
+	@Builder.Default
 	private List<Bet> bets = new ArrayList<>();
 }
