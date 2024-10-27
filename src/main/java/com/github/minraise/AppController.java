@@ -10,6 +10,6 @@ public class AppController {
 
 	@GetMapping("/")
 	public String home() {
-		return "Now on Spring Boot????!!!!";
+		return "Now on Spring Boot????!!!!!!";
 	}
 }
