@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Data
 @AllArgsConstructor
@@ -28,11 +28,13 @@ public class GameResponse {
 	// Static factory method
 	public static GameResponse fromGame(Game game) {
 		List<PlayerResponse> playerResponses = game.getPlayers() != null ?
-				game.getPlayers().stream().map(PlayerResponse::from).collect(Collectors.toList())
+				game.getPlayers().stream().map(PlayerResponse::from).toList()
 				: new ArrayList<>();
 
 		List<BetResponse> betResponses = game.getBets() != null ?
-				game.getBets().stream().map(BetResponse::from).collect(Collectors.toList())
+				game.getBets().stream()
+						.map(bet -> BetResponse.from(bet, BigDecimal.ZERO))  // 기본값으로 BigDecimal.ZERO 전달
+						.toList()
 				: new ArrayList<>();
 
 		return GameResponse.builder()

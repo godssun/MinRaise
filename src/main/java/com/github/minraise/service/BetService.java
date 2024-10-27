@@ -7,25 +7,21 @@ import com.github.minraise.entity.bet.Bet;
 import com.github.minraise.entity.game.Game;
 import com.github.minraise.entity.game.GameCounter;
 import com.github.minraise.entity.player.Player;
-import com.github.minraise.exceptions.MinimumRaiseViolationException;
 import com.github.minraise.repository.BetRepository;
 import com.github.minraise.repository.GameCounterRepository;
 import com.github.minraise.repository.GameRepository;
 import com.github.minraise.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 
 @Service
 @RequiredArgsConstructor
 public class BetService {
-	private static final Logger log = LoggerFactory.getLogger(BetService.class);
 	private final BetRepository betRepository;
 	private final PlayerRepository playerRepository;
 	private final GameRepository gameRepository;
@@ -43,66 +39,63 @@ public class BetService {
 
 		GameCounter gameCounter = gameCounterRepository.findById(game.getGameId())
 				.orElseThrow(() -> new RuntimeException("Game counter not found"));
-		int currentBetIndex = gameCounter.getBetCounter() + 1;  // 현재 베팅 인덱스 설정
-		gameCounter.setBetCounter(currentBetIndex);
-		gameCounterRepository.save(gameCounter);
+		int currentBetIndex = gameCounter.getBetCounter() + 1;
 
 		BigDecimal raiseAmount;
 		BigDecimal previousRaiseAmount;
+		BigDecimal requiredBetAmount;
+
 
 		if (currentBetIndex == 1) {
-			// 첫 번째 베팅: 빅블라인드의 두 배가 맞는지 확인
 			raiseAmount = betRequest.getBetAmount().subtract(game.getBigBlind());
+			requiredBetAmount = game.getBigBlind().multiply(BigDecimal.valueOf(2));
+
 			if (!validateFirstBet(raiseAmount, game.getBigBlind())) {
-				throw new MinimumRaiseViolationException("미니멈 레이즈 위반.");
+				// 잘못된 베팅일 때, requiredBetAmount를 포함해 응답 반환
+				return BetResponse.fromInvalid(requiredBetAmount);
 			}
 		} else if (currentBetIndex == 2) {
-			// 두 번째 베팅: previousRaiseAmount를 리퀘스트의 베팅 금액과 빅블라인드로 비교
 			raiseAmount = betRequest.getBetAmount().subtract(game.getCurrentBetAmount());
-
-			// 두 번째 베팅에서는 previousRaiseAmount를 빅블라인드와 비교
 			previousRaiseAmount = game.getCurrentBetAmount().subtract(game.getBigBlind());
+			requiredBetAmount = previousRaiseAmount.add(game.getCurrentBetAmount());
+
 			if (!validateSubsequentBet(raiseAmount, previousRaiseAmount)) {
-				BigDecimal requiredBetAmount = previousRaiseAmount.add(game.getCurrentBetAmount()); // 추가로 얼마를 베팅해야 하는지 계산
-				throw new MinimumRaiseViolationException(
-						"미니멈 레이즈 위반. 최소한 " + requiredBetAmount + "을 베팅해야 합니다.", requiredBetAmount
-				);
+				return BetResponse.fromInvalid(requiredBetAmount);
 			}
 		} else {
-			// 세 번째 이후 베팅: raiseAmountt와 previousRaiseAmount의 차이를 계산하여 비교
 			BigDecimal lastBetAmount = game.getCurrentBetAmount();
 			previousRaiseAmount = lastBetAmount.subtract(getSecondLastBetAmount(game.getGameId()));
-			BigDecimal a = getSecondLastBetAmount(game.getGameId());
 			raiseAmount = betRequest.getBetAmount().subtract(lastBetAmount);
+			requiredBetAmount = previousRaiseAmount.add(lastBetAmount);
 
 			if (!validateSubsequentBet(raiseAmount, previousRaiseAmount)) {
-				BigDecimal requiredBetAmount = previousRaiseAmount.add(lastBetAmount); // 추가로 얼마를 베팅해야 하는지 계산
-				throw new MinimumRaiseViolationException(
-						"미니멈 레이즈 위반. 최소한 " + requiredBetAmount + "을 베팅해야 합니다.", requiredBetAmount
-				);
+				return BetResponse.fromInvalid(requiredBetAmount);
 			}
 		}
 
-		// 베팅 생성
+
+		// 유효한 베팅인 경우에만 betCounter와 currentBetAmount를 업데이트
 		Bet bet = Bet.builder()
 				.game(game)
 				.player(player)
 				.betAmount(betRequest.getBetAmount())
 				.raiseAmount(raiseAmount)
 				.position(betRequest.getPosition())
-				.isValid(true) // 이미 검증이 끝났으므로 유효하다고 설정
+				.isValid(true)
 				.betIndex(currentBetIndex)
 				.build();
 
-		// 게임의 현재 베팅 금액 업데이트
 		game.setCurrentBetAmount(betRequest.getBetAmount());
 		gameRepository.save(game);
+
+		gameCounter.setBetCounter(currentBetIndex);  // 유효한 베팅일 때만 업데이트
+		gameCounterRepository.save(gameCounter);
 
 		// 베팅 저장
 		Bet savedBet = betRepository.save(bet);
 
 		// BetResponse로 변환 후 반환
-		return BetResponse.from(savedBet);
+		return BetResponse.from(savedBet,requiredBetAmount);
 	}
 
 	private boolean validateFirstBet(BigDecimal raiseAmount, BigDecimal bigBlind) {
@@ -127,26 +120,14 @@ public class BetService {
 		// 두 번째로 마지막 베팅의 금액 반환
 		return lastTwoBets.get(1).getBetAmount();
 	}
-	private BigDecimal getSecondLastRaiseAmount(Long gameId) {
-		// 해당 게임에서 마지막 두 개의 레이즈 양을 가져오는 쿼리
-		List<Bet> lastTwoBets = betRepository.findTop2ByGame_GameIdOrderByBetIndexDesc(gameId);
-
-		if (lastTwoBets.size() < 2) {
-			// 두 번째로 마지막 베팅이 없으면 0 반환
-			return BigDecimal.ZERO;
-		}
-
-		// 두 번째로 마지막 베팅의 레이즈 양 반환
-		return lastTwoBets.get(1).getRaiseAmount();
-	}
 
 
 	// 특정 게임의 모든 베팅 내역 가져오기
 	public List<BetResponse> getBetsByGameId(Long gameId) {
 		List<Bet> bets = betRepository.findByGame_GameId(gameId);
 		return bets.stream()
-				.map(BetResponse::from)
-				.collect(Collectors.toList());
+				.map(bet -> BetResponse.from(bet, BigDecimal.ZERO))  // 기본값으로 BigDecimal.ZERO 전달
+				.toList();
 	}
 
 	// 특정 게임에서 특정 플레이어 인덱스의 모든 베팅 가져오기
@@ -155,6 +136,8 @@ public class BetService {
 		if (bets.isEmpty()) {
 			throw new RuntimeException("No bets found for this player index");
 		}
-		return bets.stream().map(BetResponse::from).collect(Collectors.toList());
+		return bets.stream()
+				.map(bet -> BetResponse.from(bet, BigDecimal.ZERO))  // 기본값으로 BigDecimal.ZERO 전달
+				.toList();
 	}
 }

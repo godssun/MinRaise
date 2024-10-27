@@ -17,20 +17,32 @@ public class BetResponse {
 	private Long playerId;
 	private BigDecimal betAmount;
 	private BigDecimal raiseAmount;
+	private BigDecimal requiredBetAmount; // 새로운 필드 추가
 	private String position;
 	private boolean isValid;
 	private int betIndex;
 
-	public static BetResponse from(Bet bet) {
+	public static BetResponse from(Bet bet, BigDecimal requiredBetAmount) {
 		return BetResponse.builder()
 				.betId(bet.getBetId())
 				.gameId(bet.getGame().getGameId())
 				.playerId(bet.getPlayer().getPlayerId())
 				.betAmount(bet.getBetAmount())
 				.raiseAmount(bet.getRaiseAmount())
+				.requiredBetAmount(requiredBetAmount) // 새로운 필드 설정
 				.position(bet.getPosition())
 				.isValid(bet.isValid())
 				.betIndex(bet.getBetIndex())
 				.build();
 	}
+
+	public static BetResponse fromInvalid(BigDecimal requiredBetAmount) {
+		// 잘못된 베팅의 경우, 필요한 금액만 반환하는 응답 생성
+		return BetResponse.builder()
+				.requiredBetAmount(requiredBetAmount)
+				.isValid(false)
+				.build();
+	}
+
+
 }
