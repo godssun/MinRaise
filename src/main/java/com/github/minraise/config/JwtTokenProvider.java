@@ -1,6 +1,7 @@
 package com.github.minraise.config;
 
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -61,15 +62,15 @@ public class JwtTokenProvider {
 	/**
 	 * JWT 토큰에서 사용자 ID를 추출합니다.
 	 * @param token JWT 토큰
-	 * @return 토큰에서 추출한 사용자 이름
+	 * @return 토큰에서 추출한 사용자 ID
 	 */
-	public String getUsernameFromToken(String token) {
-		return Jwts.parserBuilder()
+	public Long getUserIdFromToken(String token) {
+		Claims claims = Jwts.parserBuilder()
 				.setSigningKey(SECRET_KEY)
 				.build()
 				.parseClaimsJws(token)
-				.getBody()
-				.getSubject();
+				.getBody();
+		return Long.parseLong(claims.getSubject());
 	}
 
 

@@ -14,7 +14,7 @@ public class SignUpResponse {
 	// 스태틱 팩토리 메서드 추가
 	public static SignUpResponse fromUser(User user) {
 		return SignUpResponse.builder()
-				.userId(user.getUser_id().longValue()) // Long 타입으로 변환
+				.userId(user.getUserId())
 				.username(user.getUsername())
 				.email(user.getEmail())
 				.build();
