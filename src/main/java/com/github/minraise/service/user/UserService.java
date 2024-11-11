@@ -5,9 +5,7 @@ import com.github.minraise.dto.User.*;
 import com.github.minraise.entity.user.User;
 import com.github.minraise.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -45,8 +43,8 @@ public class UserService {
 
 
 		// 로그인 성공 시 JWT 토큰 생성 및 반환
-		String accessToken = jwtTokenProvider.createToken(Long.valueOf(user.getUser_id().toString()));  // user_id를 사용하여 토큰 생성
-		String refreshToken = jwtTokenProvider.createRefreshToken(Long.valueOf(user.getUser_id().toString()));
+		String accessToken = jwtTokenProvider.createToken(Long.valueOf(user.getUserId().toString()));  // user_id를 사용하여 토큰 생성
+		String refreshToken = jwtTokenProvider.createRefreshToken(Long.valueOf(user.getUserId().toString()));
 
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.add("Authorization", "Bearer " + accessToken);

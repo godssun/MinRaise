@@ -13,7 +13,7 @@ public class UserResponse {
 
 	public static UserResponse fromUser(User user) {
 		return UserResponse.builder()
-				.userId(user.getUser_id().longValue())
+				.userId(user.getUserId())
 				.username(user.getUsername())
 				.email(user.getEmail())
 				.build();

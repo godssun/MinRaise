@@ -24,6 +24,7 @@ public class GameResponse {
 	private BigDecimal currentBetAmount;
 	private List<PlayerResponse> players;
 	private List<BetResponse> bets;
+	private Long userId;
 
 	// Static factory method
 	public static GameResponse fromGame(Game game) {
@@ -45,6 +46,8 @@ public class GameResponse {
 				.currentBetAmount(game.getCurrentBetAmount())
 				.players(playerResponses)
 				.bets(betResponses)
+				.userId(game.getUser().getUserId())
 				.build();
 	}
+
 }

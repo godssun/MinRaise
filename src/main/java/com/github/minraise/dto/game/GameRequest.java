@@ -15,6 +15,7 @@ public class GameRequest {
 	private BigDecimal smallBlind;
 	private BigDecimal bigBlind;
 	private int maxPlayers;
+	private Long userId;
 
 	public static Game toEntity(GameRequest request) {
 		return Game.builder()
