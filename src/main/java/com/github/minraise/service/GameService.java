@@ -5,13 +5,14 @@ import com.github.minraise.dto.game.GameRequest;
 import com.github.minraise.dto.game.GameResponse;
 import com.github.minraise.entity.game.Game;
 import com.github.minraise.entity.game.GameCounter;
-import com.github.minraise.repository.BetRepository;
-import com.github.minraise.repository.GameCounterRepository;
-import com.github.minraise.repository.GameRepository;
-import com.github.minraise.repository.PlayerRepository;
+import com.github.minraise.entity.user.User;
+import com.github.minraise.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,11 +21,18 @@ public class GameService {
 	private final GameCounterRepository gameCounterRepository;
 	private final PlayerRepository playerRepository;
 	private final BetRepository betRepository;
+	private final UserRepository userRepository;
 
 
 	public GameResponse createGame(GameRequest gameRequest) {
 		// GameRequest를 Game 엔티티로 변환하여 저장
-		Game savedGame = gameRepository.save(GameRequest.toEntity(gameRequest));
+		User user = userRepository.findById(gameRequest.getUserId())
+				.orElseThrow(() -> new RuntimeException("User not found"));
+
+		Game game = GameRequest.toEntity(gameRequest);
+		game.setUser(user);
+
+		Game savedGame = gameRepository.save(game);
 		// 게임 카운터 초기화
 		GameCounter gameCounter = GameCounter.initialize(savedGame.getGameId());
 		gameCounterRepository.save(gameCounter);
@@ -54,5 +62,16 @@ public class GameService {
 				.gameId(gameId)
 				.message("게임이 삭제되었습니다.")
 				.build();
+	}
+
+
+	public List<GameResponse> getGamesByUserId(Long userId) {
+		// 사용자 ID를 기반으로 게임 목록을 조회
+		List<Game> games = gameRepository.findByUser_UserId(userId);
+
+		// 조회된 게임 목록을 GameResponse로 변환하여 반환
+		return games.stream()
+				.map(GameResponse::fromGame)
+				.collect(Collectors.toList());
 	}
 }
