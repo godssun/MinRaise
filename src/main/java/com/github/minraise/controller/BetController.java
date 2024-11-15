@@ -27,6 +27,22 @@ public class BetController {
 		return ResponseEntity.ok(response);
 	}
 
+	@PostMapping("/fold")
+	@Operation(summary = "폴드", description = "플레이어가 폴드합니다.")
+	@ApiResponse(responseCode = "200", description = "폴드 성공")
+	public ResponseEntity<BetResponse> fold(@RequestParam Long gameId, @RequestParam int playerIndex) {
+		BetResponse foldResponse = betService.fold(gameId, playerIndex);
+		return ResponseEntity.ok(foldResponse);
+	}
+
+	@PostMapping("/call")
+	@Operation(summary = "콜", description = "플레이어가 콜합니다.")
+	@ApiResponse(responseCode = "200", description = "콜 성공")
+	public ResponseEntity<BetResponse> call(@RequestParam Long gameId, @RequestParam int playerIndex) {
+		BetResponse callResponse = betService.call(gameId, playerIndex);
+		return ResponseEntity.ok(callResponse);
+	}
+
 	@Operation(summary = "특정 게임의 모든 베팅 내역 조회", description = "특정 게임 ID를 기준으로 모든 베팅 내역을 조회합니다.")
 	@ApiResponse(responseCode = "200", description = "베팅 내역 조회 성공")
 	@GetMapping("/game/{gameId}")
@@ -45,4 +61,6 @@ public class BetController {
 		List<BetResponse> bets = betService.getBetsByGamePlayerIndex(gameId, playerIndex);
 		return ResponseEntity.ok(bets);
 	}
+
+
 }

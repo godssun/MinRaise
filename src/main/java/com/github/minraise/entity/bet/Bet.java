@@ -38,6 +38,10 @@ public class Bet {
 
 	private int betIndex;
 
+
+	@Column(name = "bet_type")
+	private String betType; // "CALL", "RAISE", "FOLD" 등의 베팅 유형 추가
+
 	// Bet 엔티티를 BetResponse로 변환하는 static factory method
 	public static BetResponse from(Bet bet) {
 		return BetResponse.builder()
