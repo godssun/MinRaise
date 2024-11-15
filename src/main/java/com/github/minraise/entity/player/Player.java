@@ -28,6 +28,9 @@ public class Player {
 
 	private int playerIndex; // 순번 필드 추가
 
+	@Builder.Default
+	private boolean isFolded = false; // 폴드 여부를 저장하는 필드 추가
+
 	public static Player from(PlayerRequest playerRequest, Game game, int playerIndex) {
 		return Player.builder()
 				.game(game)

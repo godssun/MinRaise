@@ -21,6 +21,7 @@ public class BetResponse {
 	private String position;
 	private boolean isValid;
 	private int betIndex;
+	private String betType;
 
 	public static BetResponse from(Bet bet, BigDecimal requiredBetAmount) {
 		return BetResponse.builder()
@@ -33,6 +34,7 @@ public class BetResponse {
 				.position(bet.getPosition())
 				.isValid(bet.isValid())
 				.betIndex(bet.getBetIndex())
+				.betType(bet.getBetType())
 				.build();
 	}
 
