@@ -24,18 +24,24 @@ public class Player {
 	@JoinColumn(name = "game_id", referencedColumnName = "game_id")
 	private Game game;
 
-	private String playername;
+	@Column(name = "playername")
+	private String playerName;
 
-	private int playerIndex; // 순번 필드 추가
+	private int playerIndex;
+
+	@Column(name = "position")
+	private String position;
 
 	@Builder.Default
-	private boolean isFolded = false; // 폴드 여부를 저장하는 필드 추가
+	private boolean isFolded = false;
 
-	public static Player from(PlayerRequest playerRequest, Game game, int playerIndex) {
+	public static Player from(PlayerRequest request, Game game, int playerIndex, String position) {
 		return Player.builder()
 				.game(game)
-				.playername(playerRequest.getPlayername())
 				.playerIndex(playerIndex)
+				.playerName(request.getPlayerName())
+				.position(position)
+				.isFolded(false)
 				.build();
 	}
 }

@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PlayerRequest {
 	private Long gameId;
-	private String playername;
+	private String playerName;
 
 }
