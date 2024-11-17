@@ -21,5 +21,28 @@ public class GlobalExceptionHandler {
 		ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
 		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 	}
+	@ExceptionHandler(GameNotFoundException.class)
+	public ResponseEntity<Object> handleGameNotFoundException(GameNotFoundException ex) {
+		ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+	}
+
+	@ExceptionHandler(PlayerNotFoundException.class)
+	public ResponseEntity<Object> handlePlayerNotFoundException(PlayerNotFoundException ex) {
+		ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+	}
+
+	@ExceptionHandler(MaxPlayersExceededException.class)
+	public ResponseEntity<Object> handleMaxPlayersExceededException(MaxPlayersExceededException ex) {
+		ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+	}
+
+	@ExceptionHandler(BetsNotFoundException.class)
+	public ResponseEntity<Object> handleBetsNotFoundException(BetsNotFoundException ex) {
+		ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+	}
 	// 추가적인 예외 처리 로직
 }
