@@ -1,5 +1,4 @@
-package com.github.minraise.dto.player;
-
+package com.github.minraise.dto.bet;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,8 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PlayerRequest {
+public class FoldRequest {
 	private Long gameId;
-	private String playerName;
-
+	private int playerIndex;
 }

@@ -15,13 +15,15 @@ public class PlayerResponse {
 	private Long gameId;
 	private String playerName;
 	private int playerIndex;
+	private String position;
 
 	public static PlayerResponse from(Player player) {
 		return PlayerResponse.builder()
-				.playerId(player.getPlayerId())
 				.gameId(player.getGame().getGameId())
-				.playerName(player.getPlayername())
+				.playerId(player.getPlayerId())
+				.playerName(player.getPlayerName())
 				.playerIndex(player.getPlayerIndex())
+				.position(player.getPosition())
 				.build();
 	}
 }

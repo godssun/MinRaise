@@ -3,6 +3,8 @@ package com.github.minraise.controller;
 
 import com.github.minraise.dto.bet.BetRequest;
 import com.github.minraise.dto.bet.BetResponse;
+import com.github.minraise.dto.bet.CallRequest;
+import com.github.minraise.dto.bet.FoldRequest;
 import com.github.minraise.service.BetService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,16 +32,16 @@ public class BetController {
 	@PostMapping("/fold")
 	@Operation(summary = "폴드", description = "플레이어가 폴드합니다.")
 	@ApiResponse(responseCode = "200", description = "폴드 성공")
-	public ResponseEntity<BetResponse> fold(@RequestParam Long gameId, @RequestParam int playerIndex) {
-		BetResponse foldResponse = betService.fold(gameId, playerIndex);
+	public ResponseEntity<BetResponse> fold(@RequestBody FoldRequest foldRequest) {
+		BetResponse foldResponse = betService.fold(foldRequest.getGameId(), foldRequest.getPlayerIndex());
 		return ResponseEntity.ok(foldResponse);
 	}
 
 	@PostMapping("/call")
 	@Operation(summary = "콜", description = "플레이어가 콜합니다.")
 	@ApiResponse(responseCode = "200", description = "콜 성공")
-	public ResponseEntity<BetResponse> call(@RequestParam Long gameId, @RequestParam int playerIndex) {
-		BetResponse callResponse = betService.call(gameId, playerIndex);
+	public ResponseEntity<BetResponse> call(@RequestBody CallRequest callRequest) {
+		BetResponse callResponse = betService.call(callRequest.getGameId(), callRequest.getPlayerIndex());
 		return ResponseEntity.ok(callResponse);
 	}
 
