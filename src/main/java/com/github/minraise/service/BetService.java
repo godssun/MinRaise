@@ -8,6 +8,9 @@ import com.github.minraise.entity.bet.BetType;
 import com.github.minraise.entity.game.Game;
 import com.github.minraise.entity.game.GameCounter;
 import com.github.minraise.entity.player.Player;
+import com.github.minraise.exceptions.BetsNotFoundException;
+import com.github.minraise.exceptions.GameNotFoundException;
+import com.github.minraise.exceptions.PlayerNotFoundException;
 import com.github.minraise.repository.BetRepository;
 import com.github.minraise.repository.GameCounterRepository;
 import com.github.minraise.repository.GameRepository;
@@ -30,16 +33,11 @@ public class BetService {
 
 	@Transactional
 	public BetResponse placeBet(BetRequest betRequest) {
-		// 플레이어 인덱스로 플레이어 확인
-		Player player = playerRepository.findByGame_GameIdAndPlayerIndex(betRequest.getGameId(), betRequest.getPlayerIndex())
-				.orElseThrow(() -> new RuntimeException("Player not found"));
-
-		// 게임 확인
-		Game game = gameRepository.findById(player.getGame().getGameId())
-				.orElseThrow(() -> new RuntimeException("Game not found"));
-
-		GameCounter gameCounter = gameCounterRepository.findById(game.getGameId())
-				.orElseThrow(() -> new RuntimeException("Game counter not found"));
+		// 데이터 확인 및 초기화
+		Player player = findPlayer(betRequest.getGameId(), betRequest.getPlayerIndex());
+		Game game = findGame(betRequest.getGameId());
+		String position = player.getPosition();
+		GameCounter gameCounter = getGameCounter(game.getGameId());
 		int currentBetIndex = gameCounter.getBetCounter() + 1;
 
 		BigDecimal raiseAmount;
@@ -73,15 +71,15 @@ public class BetService {
 				return BetResponse.fromInvalid(requiredBetAmount);
 			}
 		}
-
-
 		// 유효한 베팅인 경우에만 betCounter와 currentBetAmount를 업데이트
 		Bet bet = Bet.builder()
 				.game(game)
 				.player(player)
 				.betAmount(betRequest.getBetAmount())
 				.raiseAmount(raiseAmount)
-				.position(betRequest.getPosition())
+				.requiredBentAmount(requiredBetAmount)
+				.position(position)
+				.betType(BetType.RAISE.name())
 				.isValid(true)
 				.betIndex(currentBetIndex)
 				.build();
@@ -100,8 +98,6 @@ public class BetService {
 	}
 
 
-
-
 	// 특정 게임의 모든 베팅 내역 가져오기
 	public List<BetResponse> getBetsByGameId(Long gameId) {
 		List<Bet> bets = betRepository.findByGame_GameId(gameId);
@@ -114,12 +110,13 @@ public class BetService {
 	public List<BetResponse> getBetsByGamePlayerIndex(Long gameId, int playerIndex) {
 		List<Bet> bets = betRepository.findByGame_GameIdAndPlayer_PlayerIndex(gameId, playerIndex);
 		if (bets.isEmpty()) {
-			throw new RuntimeException("No bets found for this player index");
+			throw new BetsNotFoundException("No bets found for this player index");
 		}
 		return bets.stream()
 				.map(bet -> BetResponse.from(bet, BigDecimal.ZERO))  // 기본값으로 BigDecimal.ZERO 전달
 				.toList();
 	}
+
 	// 폴드 메소드
 	@Transactional
 	public BetResponse fold(Long gameId, int playerIndex) {
@@ -128,7 +125,7 @@ public class BetService {
 		player.setFolded(true);
 		playerRepository.save(player);
 
-		Bet foldBet = createBet(player.getGame(), player, BigDecimal.ZERO, BetType.FOLD.name(), BetType.FOLD.name());
+		Bet foldBet = createBet(player.getGame(), player, BigDecimal.ZERO, player.getPosition(), BetType.FOLD.name());
 		return BetResponse.from(betRepository.save(foldBet),BigDecimal.ZERO);
 	}
 
@@ -139,19 +136,24 @@ public class BetService {
 		Player player = findPlayer(gameId, playerIndex);
 
 
-		Bet callBet = createBet(game, player, game.getCurrentBetAmount(), BetType.CALL.name(), BetType.CALL.name());
+		Bet callBet = createBet(game, player, game.getCurrentBetAmount(), player.getPosition(), BetType.CALL.name());
 		return BetResponse.from(betRepository.save(callBet),BigDecimal.ZERO);
 	}
 
 
 	private Player findPlayer(Long gameId, int playerIndex) {
 		return playerRepository.findByGame_GameIdAndPlayerIndex(gameId, playerIndex)
-				.orElseThrow(() -> new RuntimeException("Player not found"));
+				.orElseThrow(() -> new PlayerNotFoundException("Player not found"));
 	}
 
 	private Game findGame(Long gameId) {
 		return gameRepository.findById(gameId)
-				.orElseThrow(() -> new RuntimeException("Game not found"));
+				.orElseThrow(() -> new GameNotFoundException("Game not found"));
+	}
+
+	private GameCounter getGameCounter(Long gameId) {
+		return gameCounterRepository.findById(gameId)
+				.orElseThrow(() -> new GameNotFoundException("Game counter not found"));
 	}
 
 	private boolean validateFirstBet(BigDecimal raiseAmount, BigDecimal bigBlind) {
@@ -179,7 +181,7 @@ public class BetService {
 
 	private Bet createBet(Game game, Player player, BigDecimal betAmount, String position, String betType) {
 		int betIndex = gameCounterRepository.findById(game.getGameId())
-				.orElseThrow(() -> new RuntimeException("Game counter not found"))
+				.orElseThrow(() -> new GameNotFoundException("Game counter not found"))
 				.getBetCounter() + 1;
 
 		return Bet.builder()

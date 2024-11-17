@@ -15,9 +15,10 @@ public class BetResponse {
 	private Long betId;
 	private Long gameId;
 	private Long playerId;
+	private int playerIndex;
 	private BigDecimal betAmount;
 	private BigDecimal raiseAmount;
-	private BigDecimal requiredBetAmount; // 새로운 필드 추가
+	private BigDecimal requiredBetAmount;
 	private String position;
 	private boolean isValid;
 	private int betIndex;
@@ -28,13 +29,14 @@ public class BetResponse {
 				.betId(bet.getBetId())
 				.gameId(bet.getGame().getGameId())
 				.playerId(bet.getPlayer().getPlayerId())
+				.playerIndex(bet.getPlayer().getPlayerIndex())
 				.betAmount(bet.getBetAmount())
 				.raiseAmount(bet.getRaiseAmount())
-				.requiredBetAmount(requiredBetAmount) // 새로운 필드 설정
-				.position(bet.getPosition())
+				.requiredBetAmount(bet.getRequiredBentAmount())
 				.isValid(bet.isValid())
 				.betIndex(bet.getBetIndex())
 				.betType(bet.getBetType())
+				.position(bet.getPosition())
 				.build();
 	}
 

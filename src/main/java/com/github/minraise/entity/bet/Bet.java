@@ -33,6 +33,10 @@ public class Bet {
 
 	private BigDecimal betAmount;
 	private BigDecimal raiseAmount;
+
+	@Column(name = "required_bet_amount")
+	private BigDecimal requiredBentAmount;
+
 	private String position;
 	private boolean isValid;
 
