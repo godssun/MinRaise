@@ -43,6 +43,7 @@ public class BetService {
 		BigDecimal raiseAmount;
 		BigDecimal previousRaiseAmount;
 		BigDecimal requiredBetAmount;
+		BigDecimal lastValidRaiseAmount = getLastValidRaiseAmount(game.getGameId());
 
 
 		if (currentBetIndex == 1) {
@@ -63,7 +64,7 @@ public class BetService {
 			}
 		} else {
 			BigDecimal lastBetAmount = game.getCurrentBetAmount();
-			previousRaiseAmount = lastBetAmount.subtract(getSecondLastBetAmount(game.getGameId()));
+			previousRaiseAmount = lastValidRaiseAmount; // 마지막 유효 레이즈 금액
 			raiseAmount = betRequest.getBetAmount().subtract(lastBetAmount);
 			requiredBetAmount = previousRaiseAmount.add(lastBetAmount);
 
@@ -177,6 +178,17 @@ public class BetService {
 
 		// 두 번째로 마지막 베팅의 금액 반환
 		return lastTwoBets.get(1).getBetAmount();
+	}
+
+	//마지막 유효 레이즈 금액
+	private BigDecimal getLastValidRaiseAmount(Long gameId) {
+		List<Bet> bets = betRepository.findByGame_GameIdOrderByBetIndexDesc(gameId);
+		for (Bet bet : bets) {
+			if (bet.getRaiseAmount().compareTo(BigDecimal.ZERO) > 0) {
+				return bet.getRaiseAmount();
+			}
+		}
+		return BigDecimal.ZERO;
 	}
 
 	private Bet createBet(Game game, Player player, BigDecimal betAmount, String position, String betType) {

@@ -6,6 +6,8 @@ import com.github.minraise.dto.game.GameResponse;
 import com.github.minraise.entity.game.Game;
 import com.github.minraise.entity.game.GameCounter;
 import com.github.minraise.entity.user.User;
+import com.github.minraise.exceptions.GameNotFoundException;
+import com.github.minraise.exceptions.UserNotFoundException;
 import com.github.minraise.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +27,8 @@ public class GameService {
 
 
 	public GameResponse createGame(GameRequest gameRequest) {
-		// GameRequest를 Game 엔티티로 변환하여 저장
 		User user = userRepository.findById(gameRequest.getUserId())
-				.orElseThrow(() -> new RuntimeException("User not found"));
+				.orElseThrow(() -> new UserNotFoundException("User not found with ID: " + gameRequest.getUserId()));
 
 		Game game = GameRequest.toEntity(gameRequest);
 		game.setUser(user);
@@ -43,7 +44,7 @@ public class GameService {
 
 	public GameResponse getGameById(Long gameId) {
 		Game game = gameRepository.findById(gameId)
-				.orElseThrow(() -> new RuntimeException("Game not found"));
+				.orElseThrow(() -> new GameNotFoundException("Game not found"));
 
 		return GameResponse.fromGame(game);
 	}

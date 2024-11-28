@@ -39,7 +39,7 @@ public class GameController {
 
 	@Operation(summary = "게임 조회", description = "게임 ID를 통해 특정 게임의 정보를 조회합니다.")
 	@ApiResponse(responseCode = "200", description = "게임 조회 성공")
-	@GetMapping("/game/{gameId}")
+	@GetMapping("/{gameId}")
 	public ResponseEntity<GameResponse> getGameById(@PathVariable Long gameId) {
 		GameResponse gameResponse = gameService.getGameById(gameId);
 		return ResponseEntity.ok(gameResponse);

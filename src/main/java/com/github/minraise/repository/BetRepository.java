@@ -18,4 +18,6 @@ public interface BetRepository extends JpaRepository<Bet, Long> {
 
 	// 특정 게임의 특정 플레이어 인덱스의 모든 베팅 가져오기
 	List<Bet> findByGame_GameIdAndPlayer_PlayerIndex(Long gameId, int playerIndex);
+
+	List<Bet> findByGame_GameIdOrderByBetIndexDesc(Long gameId);
 }
