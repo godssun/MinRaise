@@ -1,6 +1,9 @@
 package com.github.minraise.repository;
 
+import aj.org.objectweb.asm.commons.Remapper;
 import com.github.minraise.entity.bet.Bet;
+import com.github.minraise.entity.game.RoundState;
+import com.github.minraise.entity.player.Player;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -20,4 +23,8 @@ public interface BetRepository extends JpaRepository<Bet, Long> {
 	List<Bet> findByGame_GameIdAndPlayer_PlayerIndex(Long gameId, int playerIndex);
 
 	List<Bet> findByGame_GameIdOrderByBetIndexDesc(Long gameId);
+
+	List<Bet> findByGame_GameIdAndPlayer_PlayerIdAndRoundState(Long gameId, Long playerId, RoundState roundState);
+
+	Optional<Bet> findTopByPlayer_PlayerIdOrderByBetIndexDesc(Long playerId);
 }

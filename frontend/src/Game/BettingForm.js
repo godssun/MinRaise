@@ -7,12 +7,12 @@ function BettingForm() {
     const navigate = useNavigate();
     const [players, setPlayers] = useState([]);
     const [betAmounts, setBetAmounts] = useState({});
-    const [disabledPlayers, setDisabledPlayers] = useState({});
     const [actionLogs, setActionLogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [smallBlind, setSmallBlind] = useState(0);
     const [bigBlind, setBigBlind] = useState(0);
-    const [currentTurn, setCurrentTurn] = useState(null); // 초기값을 null로 설정
+    const [currentTurn, setCurrentTurn] = useState(null);
+    const [currentRound, setCurrentRound] = useState(null);
 
     useEffect(() => {
         const fetchGameDetails = async () => {
@@ -24,7 +24,6 @@ function BettingForm() {
             }
 
             try {
-                // Fetch game details to get small and big blind amounts
                 const gameResponse = await fetch(`http://localhost:8080/api/games/${gameId}`, {
                     method: 'GET',
                     headers: {
@@ -36,8 +35,8 @@ function BettingForm() {
                     const gameData = await gameResponse.json();
                     setSmallBlind(gameData.smallBlind);
                     setBigBlind(gameData.bigBlind);
+                    setCurrentRound(gameData.currentRound);
 
-                    // Fetch players data
                     const playersResponse = await fetch(`http://localhost:8080/api/players/game/${gameId}`, {
                         method: 'GET',
                         headers: {
@@ -62,9 +61,8 @@ function BettingForm() {
                             }, {})
                         );
 
-                        // UTG 인덱스를 찾고 현재 턴을 설정
                         const utgIndex = data.findIndex((player) => player.position === 'UTG');
-                        setCurrentTurn(utgIndex); // UTG가 첫 번째 턴이 됨
+                        setCurrentTurn(utgIndex);
                     } else {
                         console.error('Failed to fetch players');
                     }
@@ -110,11 +108,19 @@ function BettingForm() {
             });
 
             if (response.ok) {
-                const actionLog = `${players[playerIndex].playerName} performed ${action}`;
+                const actionLog = `${players[playerIndex]?.playerName || 'Player'} performed ${action}`;
                 setActionLogs((prevLogs) => [...prevLogs, actionLog]);
 
-                // 턴 이동: 다음 플레이어로 이동
-                setCurrentTurn((prevTurn) => (prevTurn + 1) % players.length); // 순환적으로 돌아감
+                if (action === 'Fold') {
+                    setPlayers((prevPlayers) =>
+                        prevPlayers.map((player) =>
+                            player.playerIndex === playerIndex ? { ...player, isFolded: true } : player
+                        )
+                    );
+                }
+
+                updateNextTurn();
+                checkRoundOver();
             } else {
                 alert(`Failed to perform ${action}`);
             }
@@ -150,23 +156,70 @@ function BettingForm() {
             const data = await response.json();
 
             if (response.ok && data.valid) {
-                const actionLog = `${players[playerIndex].playerName} raised ${data.betAmount} (Raise Amount: ${data.raiseAmount})`;
+                const actionLog = `${players[playerIndex]?.playerName || 'Player'} raised ${data.betAmount} (Raise Amount: ${data.raiseAmount})`;
                 setActionLogs((prevLogs) => [...prevLogs, actionLog]);
 
                 setBetAmounts({ ...betAmounts, [playerIndex]: '' });
 
-                // 턴 이동
-                setCurrentTurn((prevTurn) => (prevTurn + 1) % players.length); // 순환적으로 돌아감
+                updateNextTurn();
+                checkRoundOver();
             } else {
-                setActionLogs((prevLogs) => [
-                    ...prevLogs,
-                    `Minimum raise violated by ${players[playerIndex].playerName} (${players[playerIndex].position}). Required bet amount is ${data.requiredBetAmount}.`,
-                ]);
                 alert(`Invalid bet: Minimum required bet is ${data.requiredBetAmount}`);
             }
         } catch (error) {
             console.error('Error placing bet:', error);
-            alert('An error occurred while placing the bet.');
+        }
+    };
+
+    const updateNextTurn = () => {
+        setCurrentTurn((prevTurn) => {
+            let nextTurn = (prevTurn + 1) % players.length;
+
+            while (players[nextTurn]?.isFolded) {
+                nextTurn = (nextTurn + 1) % players.length;
+
+                if (nextTurn === prevTurn) {
+                    console.error("No active players left to take a turn.");
+                    return prevTurn;
+                }
+            }
+
+            console.log("Next Turn:", nextTurn, "Player:", players[nextTurn]);
+            return nextTurn;
+        });
+    };
+
+    const checkRoundOver = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('You must log in to perform this action.');
+            navigate('/login');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/games/${gameId}/round-status`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setCurrentRound(data.nextRound);
+
+                if (data.isRoundOver) {
+                    alert(`Round has ended. Proceeding to ${data.nextRound} round.`);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500); // 새로고침으로 다음 라운드 데이터를 로드
+                }
+            } else {
+                alert('Failed to check round status.');
+            }
+        } catch (error) {
+            console.error('Error checking round status:', error);
         }
     };
 
@@ -177,35 +230,39 @@ function BettingForm() {
     return (
         <div className="betting-container">
             <h2>Betting for Game ID: {gameId}</h2>
+            <h3>Current Round: {currentRound || 'Loading...'}</h3>
             <div className="players-list">
                 {players.map((player, index) => (
-                    <div key={player.playerIndex} className="player-item">
+                    <div
+                        key={player.playerIndex}
+                        className={`player-item ${player.isFolded ? 'folded-player' : ''}`}
+                    >
                         <span>
                             {player.playerName} ({player.position})
                         </span>
                         <input
                             type="number"
-                            placeholder={`Enter bet amount`}
-                            value={betAmounts[player.playerIndex]}
+                            placeholder="Enter bet amount"
+                            value={betAmounts[player.playerIndex] || ''}
                             onChange={(e) => handleInputChange(player.playerIndex, e.target.value)}
-                            disabled={currentTurn !== index} // 현재 턴인 플레이어만 활성화
+                            disabled={currentTurn !== index || player.isFolded}
                         />
                         <div className="action-buttons">
                             <button
                                 onClick={() => handleBet(player.playerIndex)}
-                                disabled={currentTurn !== index} // 현재 턴인 플레이어만 버튼 활성화
+                                disabled={currentTurn !== index || player.isFolded}
                             >
                                 Bet
                             </button>
                             <button
                                 onClick={() => handleAction(player.playerIndex, 'Call')}
-                                disabled={currentTurn !== index} // 현재 턴인 플레이어만 버튼 활성화
+                                disabled={currentTurn !== index || player.isFolded}
                             >
                                 Call
                             </button>
                             <button
                                 onClick={() => handleAction(player.playerIndex, 'Fold')}
-                                disabled={currentTurn !== index} // 현재 턴인 플레이어만 버튼 활성화
+                                disabled={currentTurn !== index || player.isFolded}
                             >
                                 Fold
                             </button>

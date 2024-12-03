@@ -7,6 +7,7 @@ import com.github.minraise.entity.bet.Bet;
 import com.github.minraise.entity.bet.BetType;
 import com.github.minraise.entity.game.Game;
 import com.github.minraise.entity.game.GameCounter;
+import com.github.minraise.entity.game.RoundState;
 import com.github.minraise.entity.player.Player;
 import com.github.minraise.exceptions.BetsNotFoundException;
 import com.github.minraise.exceptions.GameNotFoundException;
@@ -30,6 +31,7 @@ public class BetService {
 	private final PlayerRepository playerRepository;
 	private final GameRepository gameRepository;
 	private final GameCounterRepository gameCounterRepository;
+	private final GameService gameService;
 
 	@Transactional
 	public BetResponse placeBet(BetRequest betRequest) {
@@ -38,6 +40,7 @@ public class BetService {
 		Game game = findGame(betRequest.getGameId());
 		String position = player.getPosition();
 		GameCounter gameCounter = getGameCounter(game.getGameId());
+		RoundState currentRound = game.getCurrentRound();
 		int currentBetIndex = gameCounter.getBetCounter() + 1;
 
 		BigDecimal raiseAmount;
@@ -83,13 +86,21 @@ public class BetService {
 				.betType(BetType.RAISE.name())
 				.isValid(true)
 				.betIndex(currentBetIndex)
+				.roundState(currentRound)
 				.build();
 
 		game.setCurrentBetAmount(betRequest.getBetAmount());
 		gameRepository.save(game);
 
+		player.setHasTakenAction(true);
+		playerRepository.save(player);
+
 		gameCounter.setBetCounter(currentBetIndex);  // 유효한 베팅일 때만 업데이트
 		gameCounterRepository.save(gameCounter);
+
+		if (gameService.isRoundOver(game.getGameId())) {
+			gameService.nextRound(game.getGameId());
+		}
 
 		// 베팅 저장
 		Bet savedBet = betRepository.save(bet);
@@ -122,11 +133,19 @@ public class BetService {
 	@Transactional
 	public BetResponse fold(Long gameId, int playerIndex) {
 		Player player = findPlayer(gameId, playerIndex);
+		Game game = findGame(gameId);
 
 		player.setFolded(true);
+		player.setHasTakenAction(true);
 		playerRepository.save(player);
 
 		Bet foldBet = createBet(player.getGame(), player, BigDecimal.ZERO, player.getPosition(), BetType.FOLD.name());
+		foldBet.setRoundState(player.getGame().getCurrentRound());
+
+		if (gameService.isRoundOver(game.getGameId())) {
+			gameService.nextRound(game.getGameId());
+		}
+
 		return BetResponse.from(betRepository.save(foldBet),BigDecimal.ZERO);
 	}
 
@@ -136,8 +155,15 @@ public class BetService {
 		Game game = findGame(gameId);
 		Player player = findPlayer(gameId, playerIndex);
 
+		player.setHasTakenAction(true);
+		playerRepository.save(player);
 
 		Bet callBet = createBet(game, player, game.getCurrentBetAmount(), player.getPosition(), BetType.CALL.name());
+		callBet.setRoundState(player.getGame().getCurrentRound());
+
+		if (gameService.isRoundOver(game.getGameId())) {
+			gameService.nextRound(game.getGameId());
+		}
 		return BetResponse.from(betRepository.save(callBet),BigDecimal.ZERO);
 	}
 

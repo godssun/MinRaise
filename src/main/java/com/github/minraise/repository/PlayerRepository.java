@@ -13,4 +13,6 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
 
 	// 특정 게임에 속한 모든 플레이어 가져오기
 	List<Player> findByGame_GameId(Long gameId);
+
+	List<Player> findByGame_GameIdAndIsFoldedFalse(Long gameId);
 }
