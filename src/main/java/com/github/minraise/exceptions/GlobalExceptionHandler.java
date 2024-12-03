@@ -5,6 +5,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -41,6 +45,12 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(BetsNotFoundException.class)
 	public ResponseEntity<Object> handleBetsNotFoundException(BetsNotFoundException ex) {
+		ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+	}
+
+	@ExceptionHandler(UserNotFoundException.class)
+	public ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException ex) {
 		ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
 		return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
 	}

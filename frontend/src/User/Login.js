@@ -15,28 +15,34 @@ function Login() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ username, password }),
             });
 
             if (response.ok) {
-                // 토큰이 헤더에 담겨서 응답될 것이므로 헤더에서 가져옴
-                const token = response.headers.get('Authorization'); // 'Authorization' 헤더에서 토큰 가져오기
-
-                if (token) {
+                // 'Authorization' 헤더에서 토큰 가져오기
+                const bearerToken = response.headers.get('Authorization');
+                if (bearerToken) {
+                    // 'Bearer ' 접두사 제거 후 순수 토큰 값만 저장
+                    const token = bearerToken.replace('Bearer ', '');
                     console.log('Login Success, Token:', token);
-                    localStorage.setItem('token', token); // 로컬 스토리지에 토큰 저장
-                    navigate('/game/create'); // 게임 생성 페이지로 이동
+
+                    // 토큰을 로컬 스토리지에 저장
+                    localStorage.setItem('token', token);
+
+                    // 게임 생성 페이지로 이동
+                    navigate('/game/create');
                 } else {
                     console.error('Token not found in the response!');
-                    alert('Token not found in the response!');
+                    alert('로그인에 실패했습니다: 토큰이 반환되지 않았습니다.');
                 }
             } else {
                 const data = await response.json();
                 console.error('Login Error:', data);
-                alert('Login failed!');
+                alert('로그인 실패: ' + (data.message || '알 수 없는 오류'));
             }
         } catch (error) {
             console.error('Login request failed:', error);
+            alert('로그인 요청이 실패했습니다. 다시 시도해주세요.');
         }
     };
 

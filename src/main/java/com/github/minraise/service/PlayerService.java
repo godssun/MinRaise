@@ -196,6 +196,7 @@ public class PlayerService {
 				.isValid(true)
 				.betIndex(0) // 초기 베팅 인덱스는 0
 				.betType("INITIAL") // 초기 베팅을 구분하기 위한 타입
+				.roundState(game.getCurrentRound())
 				.build();
 		betRepository.save(initialBet);
 	}

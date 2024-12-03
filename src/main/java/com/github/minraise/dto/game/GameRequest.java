@@ -1,6 +1,7 @@
 package com.github.minraise.dto.game;
 
 import com.github.minraise.entity.game.Game;
+import com.github.minraise.entity.game.RoundState;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +24,7 @@ public class GameRequest {
 				.bigBlind(request.getBigBlind())
 				.maxPlayers(request.getMaxPlayers())
 				.currentBetAmount(request.getBigBlind())
+				.currentRound(RoundState.PREFLOP)
 				.build();
 	}
 }

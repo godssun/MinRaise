@@ -1,6 +1,7 @@
 package com.github.minraise.entity.bet;
 
 import com.github.minraise.dto.bet.BetResponse;
+import com.github.minraise.entity.game.RoundState;
 import com.github.minraise.entity.player.Player;
 import com.github.minraise.entity.game.Game;
 import jakarta.persistence.*;
@@ -42,9 +43,11 @@ public class Bet {
 
 	private int betIndex;
 
-
 	@Column(name = "bet_type")
 	private String betType; // "CALL", "RAISE", "FOLD" 등의 베팅 유형 추가
+
+	@Enumerated(EnumType.STRING)
+	private RoundState roundState;
 
 	// Bet 엔티티를 BetResponse로 변환하는 static factory method
 	public static BetResponse from(Bet bet) {

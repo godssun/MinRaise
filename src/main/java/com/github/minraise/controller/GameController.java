@@ -4,6 +4,11 @@ import com.github.minraise.config.JwtTokenProvider;
 import com.github.minraise.dto.game.GameDeleteResponse;
 import com.github.minraise.dto.game.GameRequest;
 import com.github.minraise.dto.game.GameResponse;
+import com.github.minraise.dto.game.RoundOverResponse;
+import com.github.minraise.entity.game.Game;
+import com.github.minraise.entity.game.RoundState;
+import com.github.minraise.exceptions.GameNotFoundException;
+import com.github.minraise.repository.GameRepository;
 import com.github.minraise.service.GameService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -23,6 +28,7 @@ import java.util.List;
 public class GameController {
 	private final GameService gameService;
 	private final JwtTokenProvider jwtTokenProvider;
+	private final GameRepository gameRepository;
 
 	@Operation(summary = "게임 생성", description = "새로운 게임을 생성합니다.")
 	@ApiResponse(responseCode = "200", description = "게임 생성 성공")
@@ -39,7 +45,7 @@ public class GameController {
 
 	@Operation(summary = "게임 조회", description = "게임 ID를 통해 특정 게임의 정보를 조회합니다.")
 	@ApiResponse(responseCode = "200", description = "게임 조회 성공")
-	@GetMapping("/game/{gameId}")
+	@GetMapping("/{gameId}")
 	public ResponseEntity<GameResponse> getGameById(@PathVariable Long gameId) {
 		GameResponse gameResponse = gameService.getGameById(gameId);
 		return ResponseEntity.ok(gameResponse);
@@ -64,5 +70,33 @@ public class GameController {
 	public ResponseEntity<GameDeleteResponse> deleteGame(@PathVariable Long gameId) {
 		GameDeleteResponse deleteResponse = gameService.deleteGame(gameId);
 		return ResponseEntity.ok(deleteResponse);
+	}
+
+	@GetMapping("/{gameId}/round")
+	public ResponseEntity<RoundState> getCurrentRound(@PathVariable Long gameId) {
+		Game game = gameRepository.findById(gameId)
+				.orElseThrow(() -> new GameNotFoundException("Game not found"));
+
+		return ResponseEntity.ok(game.getCurrentRound());
+	}
+
+
+
+	/**
+	 * 현재 라운드 상태 확인 및 다음 라운드로 진행
+	 */
+	@GetMapping("/{gameId}/round-status")
+	public ResponseEntity<RoundOverResponse> checkRoundOver(@PathVariable Long gameId) {
+		RoundOverResponse response = gameService.checkRoundStatus(gameId);
+		return ResponseEntity.ok(response);
+	}
+
+	/**
+	 * 라운드 강제 진행
+	 */
+	@PostMapping("/{gameId}/next-round")
+	public ResponseEntity<GameResponse> processRound(@PathVariable Long gameId) {
+		GameResponse response = gameService.processRound(gameId);
+		return ResponseEntity.ok(response);
 	}
 }

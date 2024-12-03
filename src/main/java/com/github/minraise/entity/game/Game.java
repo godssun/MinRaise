@@ -41,4 +41,7 @@ public class Game {
 	@OneToMany(mappedBy = "game", cascade = CascadeType.ALL)
 	@Builder.Default
 	private List<Bet> bets = new ArrayList<>();
+
+	@Enumerated(EnumType.STRING)
+	private RoundState currentRound = RoundState.PREFLOP;
 }

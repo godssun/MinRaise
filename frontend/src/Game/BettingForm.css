@@ -1,0 +1,117 @@
+.betting-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+    font-family: Arial, sans-serif;
+}
+
+h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.players-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 600px;
+}
+
+.player-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.player-item span {
+    flex: 1;
+    font-weight: bold;
+}
+
+.player-item input {
+    width: 100px;
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    text-align: right;
+    margin-right: 10px;
+}
+
+.player-item input:disabled {
+    background-color: #e9ecef;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.action-buttons button {
+    padding: 5px 10px;
+    font-size: 14px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.action-buttons button:disabled {
+    background-color: #dcdcdc;
+    cursor: not-allowed;
+}
+
+.action-buttons button:nth-child(1) {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.action-buttons button:nth-child(2) {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.action-buttons button:nth-child(3) {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.action-buttons button:hover:not(:disabled) {
+    opacity: 0.9;
+}
+
+.action-logs {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 600px;
+}
+
+.action-logs h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.action-logs ul {
+    list-style: none;
+    padding: 0;
+}
+
+.action-logs li {
+    font-size: 14px;
+    margin: 5px 0;
+    padding: 5px;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.folded-player {
+    opacity: 0.5;
+    pointer-events: none;
+}

@@ -2,10 +2,11 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import SignUp from './User/SignUp';
 import Login from './User/Login';
-import GameCreate from './Game/GameCreate';
-import PlayerAdd from './Game/PlayerAdd';
-import Betting from './Game/Betting';
 import './Welcome.css';
+import GameCreationPage from './Game/GameCreationPage';
+import PlayerAddForm from './Game/PlayerAddForm';
+import BettingForm from './Game/BettingForm';
+
 
 function Welcome() {
     return (
@@ -19,6 +20,7 @@ function Welcome() {
     );
 }
 
+
 function App() {
     return (
         <Router>
@@ -26,9 +28,10 @@ function App() {
                 <Route path="/" element={<Welcome />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<SignUp />} />
-                <Route path="/game/create" element={<GameCreate />} />
-                <Route path="/players/add/:gameId" element={<PlayerAdd />} />
-                <Route path="/betting/:gameId" element={<Betting />} /> {/* 이 경로 추가 */}
+                <Route path="/game/create" element={<GameCreationPage />} /> {/* 게임 생성 페이지 추가 */}
+                <Route path="/game/:gameId/add-players" element={<PlayerAddForm />} />
+                <Route path="/game/:gameId/betting" element={<BettingForm />} /> {/* BettingForm 경로 추가 */}
+
             </Routes>
         </Router>
     );
